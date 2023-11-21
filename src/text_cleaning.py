@@ -5,6 +5,7 @@ import unicodedata
 import pandas as pd
 import nltk
 from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from unidecode import unidecode
 from spacymoji import Emoji
@@ -29,6 +30,13 @@ def get_tokens_from_doc(doc: str, with_stop=True):
                 else:
                     list_token.append(strip_accents(word.lemma_.lower()))
     return list_token
+
+
+def get_token_test(doc: str):
+    for i in doc:
+        print(i)
+        print(word_tokenize(i, language='french'))
+    return
     
 
 def clean_df_col(df: pd.DataFrame, question_col: str, token_col: str):

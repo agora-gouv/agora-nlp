@@ -84,3 +84,4 @@ def get_headline_from_topics(doc_infos, i_range, verbose=False)-> list[str]:
         print(label)
         topic_labels.append(label)
     return topic_labels
+    
