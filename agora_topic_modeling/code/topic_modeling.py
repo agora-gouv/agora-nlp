@@ -2,12 +2,19 @@ import pandas as pd
 import torch
 
 from bertopic import BERTopic
-from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import CountVectorizer
 
 from transformers import TFT5ForConditionalGeneration, T5Tokenizer, pipeline
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from transformers import GenerationConfig
 from random import sample
+
+
+def get_generation_config():
+    generation_config = GenerationConfig(
+        max_new_tokens=50, do_sample=True, top_k=50, eos_token_id=model.config.eos_token_id
+    )
+    return generation_config
 
 
 def get_tokenizer(t5=True):
