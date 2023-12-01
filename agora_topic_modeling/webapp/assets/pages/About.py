@@ -6,6 +6,7 @@ def computing_infos():
     st.write("#### Information sur les calculs")
     st.write("Pour évaluer la qualité des labels que nous attribuons aux différents topics identifiés par nos modèles, nous allons comparer les différents labels entre eux :")
     st.write("- comparaison de la similarité : le label le plus proche des autres labels généré est moins spécifique et donc le plus général")
+    st.write("- score de confiance")
 
 
 def write():
@@ -16,7 +17,7 @@ def write():
     
     st.write("Elle sert d'intermédiaire entre la création de synthèse par les pipelines *Airflow* et les dashboard sur Metabase")
 
-    computing_infos(    )
+    computing_infos()
     #st.write("Il est important de garder une étape d'intervention humaine dans ce genre de projet car ")
     return
 
