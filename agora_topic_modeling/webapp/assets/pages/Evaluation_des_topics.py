@@ -15,6 +15,7 @@ path_root = Path(__file__).parents[3]
 print(path_root)
 sys.path.append(str(path_root))
 from agora_topic_modeling.code.topic_dataviz import create_wordcloud_from_topic
+#from assets.utils.dataviz import most_common_2g
 
 TOPIC_FOLDER = "data/topic_modeling/"
 
@@ -143,6 +144,9 @@ def display_label_info(topic: int, doc_infos: pd.DataFrame, cleaned_labels: list
             wc_folder = TOPIC_FOLDER + question_short + "/wordcloud/"
             wc_filepath = wc_folder + "wc_" + str(topic) + ".png"
             st.image(wc_filepath, use_column_width=True)
+            # topic_df = doc_infos[doc_infos["Topic"] == topic]
+            # words_2g = most_common_2g(topic_df, "Document")
+            # st.write(words_2g)
             #plot_mattrix(sim_matrix)
         best = doc_infos[doc_infos["Topic"] == topic]["Representative_Docs"].values[0]
         best_answers = shlex.split(best[1:-1])
@@ -178,9 +182,9 @@ def topic_selection(custom_bertopic: BERTopic, doc_infos: pd.DataFrame, cleaned_
 
 def write():
     st.write("## Evaluation des topics générés")
-    options = ["transition_ecologique", "solutions_violence_enfants", "MDPH_MDU_negatif"]
+    options = ["transition_ecologique", "solutions_violence_enfants", "MDPH_MDU_negatif", "MDPH_MDU_positif"]
     question_short = st.selectbox("Choisissez la question à analyser :", options=options)
-    st.write("### Question : Quelle est pour vous la mesure la plus importante pour réussir la transition écologique ? C’est la dernière question, partagez-nous toutes vos idées !")
+    #st.write("### Question : Quelle est pour vous la mesure la plus importante pour réussir la transition écologique ? C’est la dernière question, partagez-nous toutes vos idées !")
     model_path = "data/topic_modeling/" + question_short + "/bertopic_model"
     
     # Data Prep
@@ -192,7 +196,7 @@ def write():
     
     display_topic_overview(custom_bertopic, stats)
     #fig = custom_bertopic.visualize_barchart()
-    #st.plotly_chart(fig) 
+    #st.plotly_chart(fig)
     
     
     
