@@ -1,7 +1,6 @@
 import re
 import pandas as pd
 
-
 def fracking(df: pd.DataFrame, col: str, sep: str)-> pd.DataFrame:
     # lambda split that filter empty elements from list
     custom_filter = lambda x: x not in ["", " ", None]
@@ -9,13 +8,10 @@ def fracking(df: pd.DataFrame, col: str, sep: str)-> pd.DataFrame:
 
     df = df.copy()
     df["fracked_text"] = df[col].apply(custom_split)
-    print(len(df.index))
     df = df.explode("fracked_text")
-    print(len(df.index))
     df["old_index"] = df.index
     fracking_count = df.groupby("old_index").agg(fracking_count=("old_index", "count")).reset_index()
     df = df.merge(fracking_count, on="old_index")
-    print(len(df.index))
     return df
 
 def compute_response_size(df: pd.DataFrame, response_col: str)-> pd.DataFrame:
