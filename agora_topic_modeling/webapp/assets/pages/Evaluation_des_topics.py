@@ -58,7 +58,7 @@ def get_doc_stats(doc_infos: pd.DataFrame)-> pd.DataFrame:
 def plot_frequent_words(freq_words: pd.DataFrame, title="Fréquence des mots du topic"):
     color_sequence = px.colors.sequential.Viridis.copy()
     color_sequence.reverse()
-    fig = px.bar(freq_words, x="count", y="word", color="word", title=title, orientation='h', color_discrete_sequence=color_sequence)
+    fig = px.bar(freq_words, x="freq", y="word", color="word", title=title, orientation='h', color_discrete_sequence=color_sequence)
     fig.update_layout(showlegend=False, title_x=0.3)
     fig.update_xaxes(title="Fréquence des mots")
     fig.update_yaxes(title="Mots importants")
@@ -75,11 +75,11 @@ def plot_mattrix(data):
     st.pyplot(fig)
 
 
-def display_outliers_topic(doc_infos: pd.DataFrame, custom_bertopic: BERTopic, stats: pd.DataFrame, is_subtopic: bool=False):
+def display_outliers_topic(doc_infos: pd.DataFrame, word_freq: pd.DataFrame, stats: pd.DataFrame, is_subtopic: bool=False):
     type = "Sous-topic" if is_subtopic else "Topic"
     st.write(f"#### Exploration du {type} des cas particuliers pour la question")
     title = f"{type} -1 : {int(stats.loc[-1]['nb_doc'])} réponses ({stats.loc[-1]['percentage']}%)"
-    freq_words = pd.DataFrame(custom_bertopic.get_topic(-1), columns=["word", "freq"])
+    freq_words = word_freq[word_freq["topic"] == -1]
     plot_frequent_words(freq_words, title)
     display_answers_from_topic(doc_infos, -1)
 
@@ -92,7 +92,7 @@ def display_topic_overview(word_freq: pd.DataFrame, stats: pd.DataFrame, is_subt
     for topic in range(topic_range):
         with cols[topic%3]:
             title = f"{type} {topic} : {int(stats.loc[topic]['nb_doc'])} réponses ({stats.loc[topic]['percentage']}%)"
-            freq_words_filter = word_freq[word_freq["topic"] == topic][["word", "count"]]
+            freq_words_filter = word_freq[word_freq["topic"] == topic][["word", "freq"]]
             plot_frequent_words(freq_words_filter, title)
     return
 
@@ -135,23 +135,24 @@ def subtopics_info(question_short: str, topic: str):
             st.dataframe(sentences, use_container_width=True)
 
 
-def display_topic_basic_info(topic: int, cleaned_labels: pd.DataFrame, custom_bertopic: BERTopic, stats: pd.DataFrame):
-    sim_matrix, top_label, score = measure_similarity_of_topic(cleaned_labels[topic], custom_bertopic)
+def display_topic_basic_info(topic: int, cleaned_labels: pd.DataFrame, word_freq: pd.DataFrame, stats: pd.DataFrame):
+    #sim_matrix, top_label, score = measure_similarity_of_topic(cleaned_labels[topic], custom_bertopic)
     st.write("#### Infos sur le topic")
     nb_doc = stats.loc[topic]["nb_doc"]
     percentage = stats.loc[topic]["percentage"]
     st.write(f"Nombre de documents : **{int(nb_doc)}** *({str(percentage)}%)*")
     st.write("Meilleur label généré d'après le modèle : ")
-    st.write("**" + top_label + "**")
-    st.write("*Score de confiance : " + str(score) + "*")
+    st.write(cleaned_labels.loc[topic]["label"])
+    #st.write("**" + top_label + "**")
+    #st.write("*Score de confiance : " + str(score) + "*")
 
     other_labels = st.checkbox("Afficher les labels potentiels ?")
     if other_labels:
         st.write("Les labels potentiels sont : ")
         for i in range(len(cleaned_labels[topic])):
             st.write("*" + cleaned_labels[topic][i] + "*")
-    freq_words = pd.DataFrame(custom_bertopic.get_topic(topic), columns=["word", "freq"])
-    plot_frequent_words(freq_words)
+    
+    plot_frequent_words(word_freq[word_freq["topic"] == topic])
 
 
 def display_sentiment_analysis(df_sentiment: pd.DataFrame):
@@ -213,10 +214,12 @@ def display_topic_info(topic: int, doc_infos: pd.DataFrame, cleaned_labels: list
         subtopics_info(question_short, topic)
 
 
-def topic_selection(custom_bertopic: BERTopic, doc_infos: pd.DataFrame, cleaned_labels: list[list[str]], question_short: str):
+def topic_selection(doc_infos: pd.DataFrame, word_freq: pd.DataFrame, cleaned_labels: pd.DataFrame, question_short: str):
     topic_count = 8
     label_tab, wc_tab, outlier_tab, sentiment_tab = st.tabs(["Détails des Topics", "Nuages de mots", "Cas Particuliers", "Analyse de sentiment"])
     st.markdown("---")
+    freq = word_freq[word_freq["topic"] == 0][["word", "freq"]]#.to_dict("records")
+    st.write(freq)
     with wc_tab:
         force_compute = st.button("Recalculer les nuages de mots")
         wc_folder = TOPIC_FOLDER + question_short + "/wordcloud/"
@@ -226,18 +229,19 @@ def topic_selection(custom_bertopic: BERTopic, doc_infos: pd.DataFrame, cleaned_
             # Si les nuages de mots n'existent pas les calculer
             if not os.path.isdir(wc_folder) or force_compute:
                 os.makedirs(wc_folder, exist_ok=True) 
-                wordcloud = create_wordcloud_from_topic(custom_bertopic, i)
+                wordcloud = create_wordcloud_from_topic(word_freq[word_freq["topic"] == i])
                 wordcloud.to_file(wc_filepath)
             # Afficher les nuages de mots
             with wc_columns[i%4]:
+                
                 st.write("### Topic " + str(i))
                 st.image(wc_filepath, width=300)
     with label_tab:
         topic = st.selectbox("Sélectionnez le topic à analyser : ", range(len(cleaned_labels)))
-        display_topic_info(topic, doc_infos, cleaned_labels, custom_bertopic, question_short)
+        display_topic_info(topic, doc_infos, cleaned_labels, word_freq, question_short)
     with outlier_tab:
         stats = get_doc_stats(doc_infos)
-        display_outliers_topic(doc_infos, custom_bertopic, stats)
+        display_outliers_topic(doc_infos, word_freq, stats)
     with sentiment_tab:
         df_sentiment = prep_sentiment_analysis(load_doc_infos("data/topic_modeling/" + question_short + "/doc_info_sentiments.csv"))
         if df_sentiment is not None:
@@ -258,6 +262,7 @@ def write():
     filepath = "data/topic_modeling/" + question_short + "/doc_infos.csv"
     doc_infos = prep_doc_info(load_doc_infos(filepath))
     #cleaned_labels = load_cleaned_labels(question_short, TOPIC_FOLDER)
+    cleaned_labels = doc_infos.groupby("Topic").agg(label=("Name", "first"))
     stats = get_doc_stats(doc_infos)
     stat_dict = load_stat_dict(question_short, TOPIC_FOLDER)
     st.write(stat_dict)
@@ -267,7 +272,7 @@ def write():
     display_topic_overview(word_freq, stats)
     
     
-    #topic_selection(custom_bertopic, doc_infos, cleaned_labels, question_short)
+    topic_selection(doc_infos, word_freq, cleaned_labels, question_short)
     return
 
 
