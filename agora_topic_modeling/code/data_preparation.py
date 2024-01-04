@@ -1,5 +1,7 @@
 import re
 import pandas as pd
+import uuid
+
 
 def fracking(df: pd.DataFrame, col: str, sep: str)-> pd.DataFrame:
     # lambda split that filter empty elements from list
@@ -13,6 +15,7 @@ def fracking(df: pd.DataFrame, col: str, sep: str)-> pd.DataFrame:
     fracking_count = df.groupby("old_index").agg(fracking_count=("old_index", "count")).reset_index()
     df = df.merge(fracking_count, on="old_index")
     return df
+
 
 def compute_response_size(df: pd.DataFrame, response_col: str)-> pd.DataFrame:
     df_ = df.copy()
@@ -40,3 +43,37 @@ def get_cleaned_doc_from_question(df: pd.DataFrame, question_col: str, response_
     df_filtered = df[df[question_col] == question].copy()
     cleaned_doc = prep_answer_df(df_filtered, response_col)
     return cleaned_doc
+
+
+def gen_uuid()-> str:
+    myuuid = uuid.uuid4()
+    return str(myuuid)
+
+
+def gen_uuid_col(size: int):
+    col = [gen_uuid() for i in range(size)]
+    return col
+
+
+def prep_before_sql(doc_infos: pd.DataFrame)-> pd.DataFrame:
+    preped_df = doc_infos.copy()
+    columns = {"Document": "text",
+               "Probability": "topic_probability",
+               "Topic": "topic",
+               "old_index": "origin_response_id"}
+    preped_df = preped_df.rename(columns=columns)
+    preped_df.loc[:, "subtopic_id"] = preped_df.groupby(["topic", "sub_topic"]).topic.transform(lambda g: uuid.uuid4())
+    preped_df.loc[:, "topic_id"] = preped_df.groupby("topic").topic.transform(lambda g: uuid.uuid4())
+    columns_to_keep = ["text", "topic_id", "subtopic_id", "topic_probability", "sentiment", "sentiment_score", "origin_response_id", "Name", "sub_name"]
+    return preped_df[columns_to_keep]
+
+
+def prep_topic(preped_df: pd.DataFrame)-> pd.DataFrame:
+    topics = preped_df.groupby("topic_id").agg(name=("Name", "first")).reset_index()
+    return topics
+
+
+def prep_sub_topics(preped_df: pd.DataFrame):
+    sub_topics = preped_df.groupby("subtopic_id").agg(name=("sub_name", "first"), parent_id=("topic_id", "first")).reset_index()
+    sub_topics = sub_topics.rename(columns={"subtopic_id": "topic_id"})
+    return sub_topics
