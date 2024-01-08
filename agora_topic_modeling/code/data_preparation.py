@@ -32,9 +32,9 @@ def prep_answer_df(df: pd.DataFrame, response_col: str):
     cleaned_df["cleaned_text"] = cleaned_df[response_col].apply(NUMBERED_LIST_HANDLER)
     cleaned_df["cleaned_text"] = cleaned_df["cleaned_text"].apply(SPECIAL_CHAR_HANDLER)
     cleaned_df["cleaned_text"] = cleaned_df["cleaned_text"].apply(WHITESPACE_HANDLER)
-    
+    print(cleaned_df)
     fracked_df = fracking(cleaned_df, "cleaned_text", sep=".")
-    fracked_df = fracked_df.dropna()
+    fracked_df = fracked_df.dropna(axis=0, subset="fracked_text")
     fracked_df = compute_response_size(fracked_df, "fracked_text")
     return fracked_df
 
