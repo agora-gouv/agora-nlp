@@ -3,9 +3,20 @@
 Open response analysis project set up by state-owned start-up Agora.
 
 
+## Structure du répertoire
+
+- **agora_topic_modeling** : dossier contenant le code l'analyse de texte
+  - **code** : dossier du code des pages
+  - **dags** : dossier de code utilisé par les page notamment pour récupérer des données ou faire du traitement de données avant leur affichage
+  -*.ipynb : Notebook contenant du code pouvant servir à l'exécution des pipelines de manière manuelle 
+
+- **Procfile** : fichier utile au déploiement sur Scalingo
+- **requirement.txt** : fichier contenant les dépendances des librairies pythons
+
+
 ## Pré-requis
 
-- Avoir python d'installé
+- Avoir installé Python
 
 ## Installation
 
