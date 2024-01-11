@@ -13,16 +13,15 @@ from code.topic_modeling import get_custom_bertopic_model, get_topic_distributio
 
 @dag(default_args={'owner': 'airflow'}, schedule=timedelta(days=30),
      start_date=pendulum.today('UTC').add(hours=-1))
-def topic_modeling():
+def topic_modeling_pipeline():
 
 
     @task
     def topic_modeling():
         cleaned_data = pd.read_parquet(CLEANED_DATA_FILEPATH)
         fracking_merge = cleaned_data[["old_index", "fracking_count"]].copy()
-        #cleaned_data = cleaned_data.dropna(axis=1, subset="fracked_text")
         X = cleaned_data["fracked_text"]
-        print("Fit BerTopic Model")
+        print("Begin Fit BerTopic Model")
         custom_bert, custom_topics = get_custom_bertopic_model(X)
         print("Get document info from BerTopic")
         doc_infos = custom_bert.get_document_info(X)
@@ -43,4 +42,4 @@ def topic_modeling():
     filepath = topic_modeling()
     subtopic_modeling(filepath)
 
-topic_modeling_dag = topic_modeling()
+topic_modeling_dag = topic_modeling_pipeline()

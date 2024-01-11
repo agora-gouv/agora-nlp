@@ -4,7 +4,6 @@ from bertopic import BERTopic
 from sklearn.feature_extraction.text import CountVectorizer
 
 
-from transformers import GenerationConfig
 from nltk.corpus import stopwords
 from random import sample
 
@@ -12,28 +11,30 @@ from random import sample
 
 def get_custom_bertopic_model(X: pd.Series)-> tuple[BERTopic, pd.DataFrame]:
     # Remove stopwords
+    print("Vectorized model")
     vectorizer_model = CountVectorizer(stop_words=stopwords.words("french"), strip_accents="ascii")
     
     #nr_topics = "auto"
     nr_topics = 10
     min_topic_size = 200
     if True:
+        print("Topic model")
         topic_model = BERTopic(vectorizer_model=vectorizer_model, nr_topics=nr_topics, min_topic_size=min_topic_size, language="french")
     else:
         n_docs = round(X.size * 0.01)
         topic_model = BERTopic(vectorizer_model=vectorizer_model, min_topic_size=n_docs, language="french")
     
-     
+    print("Fit Transform")
     topics, probs = topic_model.fit_transform(X)
+    print("Returns")
     return topic_model, topics
 
 
-
-def get_generation_config(model):
-    generation_config = GenerationConfig(
-        max_new_tokens=50, do_sample=True, top_k=50, eos_token_id=model.config.eos_token_id
-    )
-    return generation_config
+# def get_generation_config(model):
+#     generation_config = GenerationConfig(
+#         max_new_tokens=50, do_sample=True, top_k=50, eos_token_id=model.config.eos_token_id
+#     )
+#     return generation_config
 
 
 def fit_bertopic_model(docs: list[str], min_topic_size=10):
