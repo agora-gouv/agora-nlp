@@ -11,13 +11,13 @@ from dags.config import DATABASE_CONFIG_FILEPATH
 from code.psql_utils import get_connection
 
 
-@dag(default_args={'owner': 'airflow'}, schedule=timedelta(days=1),
+@dag(default_args={'owner': 'airflow'}, schedule=timedelta(days=30),
      start_date=pendulum.today('UTC').add(hours=-1))
 def list_questions():
 
     @task 
     def get_list_questions()-> None:
-        con = get_connection(DATABASE_CONFIG_FILEPATH, "local_prod")
+        con = get_connection(DATABASE_CONFIG_FILEPATH, "agora_prod")
         df = pd.read_sql_query("SELECT id, title FROM questions WHERE type='open'", con=con)
         print(df)
         con.close()

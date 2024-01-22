@@ -1,6 +1,6 @@
 import os
 import pendulum
-import pandas as pd
+
 from airflow.decorators import dag, task
 from airflow.models.param import Param
 from datetime import timedelta, datetime
@@ -20,7 +20,8 @@ def reponses_autres_pipeline():
 
 
     @task 
-    def read_data(**context)-> pd.DataFrame:
+    def read_data(**context)-> str:
+        import pandas as pd
         question_id = context["params"]["question_id"]
         #features_path = os.path.join(DATA_FOLDER, f'cleaned_data_{datetime.now()}.parquet')
         tmp_path = os.path.join(DATA_FOLDER, f'data_tmp.parquet')
@@ -32,7 +33,8 @@ def reponses_autres_pipeline():
 
 
     @task
-    def clean_data(tmp_path: str):
+    def clean_data(tmp_path: str)-> None:
+        import pandas as pd
         data = pd.read_parquet(tmp_path)
         cleaned_data = prep_answer_df(data, "response_text")
         print(cleaned_data)
