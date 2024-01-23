@@ -1,1 +1,6 @@
-*ipynb*
+agorat_topic_modeling/exploration.ipynb
+agorat_topic_modeling/topic_modeling.ipynb
+agorat_topic_modeling/topic_modeling_test.ipynb
+agorat_topic_modeling/sentiment_analysis.ipynb
+agorat_topic_modeling/database_tests.ipynb
+agorat_topic_modeling/insert_analysis_to_sql.ipynb
