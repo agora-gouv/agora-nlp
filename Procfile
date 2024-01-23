@@ -1,2 +1,2 @@
-web: start_airflow_webserver.sh
+web: bash start_airflow_webserver.sh
 worker: airflow scheduler
