@@ -41,8 +41,18 @@ source new_env/bin/activate
 pip install -r install/requirements.txt
 ```
 
-### Usage
+### Déploiement
+Utilisation de la plateforme Scalingo pour déployer cet outil de gestion de pipeline.
+Déploiement manuel de l'application sur l'interface de Scalingo en sélectionnant la branche à déployer.
+Scalingo utilise un *Procfile* situé à la racine du projet pour savoir quoi lancer au démarrage de l'application déployée.
+Contenu du *Procfile*:
+```
+web: airflow webserver
+worker: airflow scheduler
+```
+La première commande sert 
 
-**WIP**
+### Usage
+Se rendre 
 
 > Author: Theo Santos
