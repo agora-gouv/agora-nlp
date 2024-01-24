@@ -8,7 +8,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
 
 from dags.config import DATABASE_CONFIG_FILEPATH
-from code.psql_utils import get_connection
+from code.psql_utils import get_connection_from_url
 
 
 @dag(default_args={'owner': 'airflow'}, schedule=timedelta(days=30),
@@ -17,7 +17,7 @@ def list_questions():
 
     @task 
     def get_list_questions()-> None:
-        con = get_connection(DATABASE_CONFIG_FILEPATH, "agora_prod")
+        con = get_connection_from_url(os.environ.get("AGORA_PROD_URL"))
         df = pd.read_sql_query("SELECT id, title FROM questions WHERE type='open'", con=con)
         print(df)
         con.close()

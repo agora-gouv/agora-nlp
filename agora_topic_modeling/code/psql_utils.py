@@ -1,5 +1,22 @@
 import psycopg2
 from configparser import ConfigParser
+from urllib.parse import urlparse
+
+def get_connection_from_url(url: str):
+    result = urlparse(url)
+    username = result.username
+    password = result.password
+    database = result.path[1:]
+    hostname = result.hostname
+    port = result.port
+    connection = psycopg2.connect(
+        database = database,
+        user = username,
+        password = password,
+        host = hostname,
+        port = port
+    )
+    return connection
 
 
 def config(filepath='database.ini', section='postgresql'):
