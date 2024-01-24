@@ -3,7 +3,7 @@ import pendulum
 import pandas as pd
 from airflow.decorators import dag, task
 from datetime import timedelta
-
+from dotenv import load_dotenv
 import sys
 sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
 
@@ -17,6 +17,9 @@ def list_questions():
 
     @task 
     def get_list_questions()-> None:
+        load_dotenv()
+        url = os.getenv("AGORA_PROD_URL")
+        print(url)
         con = get_connection_from_url(os.environ.get("AGORA_PROD_URL"))
         df = pd.read_sql_query("SELECT id, title FROM questions WHERE type='open'", con=con)
         print(df)
