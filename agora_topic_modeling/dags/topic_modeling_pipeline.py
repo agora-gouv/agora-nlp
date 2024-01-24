@@ -15,8 +15,6 @@ from datetime import timedelta
 import sys
 sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
 from dags.config import DOC_INFOS_FILEPATH, DOC_INFOS_WITH_SUB_FILEPATH, CLEANED_DATA_FILEPATH, TOPIC_THRESHOLD_FOR_SUBTOPIC
-from code.topic_modeling import get_custom_bertopic_model, get_topic_distribution, get_sub_topics
-
 
 
 @dag(default_args={'owner': 'airflow'}, schedule=timedelta(days=30),
@@ -26,8 +24,7 @@ def topic_modeling_pipeline_2():
 
     @task
     def topic_modeling_2():
-        
-    
+        from code.topic_modeling import get_custom_bertopic_model
         cleaned_data = pd.read_parquet(CLEANED_DATA_FILEPATH)
         fracking_merge = cleaned_data[["old_index", "fracking_count"]].copy()
         X = cleaned_data["fracked_text"].head(10)
@@ -43,6 +40,7 @@ def topic_modeling_pipeline_2():
     
     @task
     def subtopic_modeling_2(filepath: str):
+        from code.topic_modeling import get_topic_distribution, get_sub_topics
         doc_infos = pd.read_parquet(filepath)
         answers_per_topic = get_topic_distribution(doc_infos)
         sub_topic_range = answers_per_topic[answers_per_topic["percentage"] > TOPIC_THRESHOLD_FOR_SUBTOPIC].count()[0]
