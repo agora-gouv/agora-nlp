@@ -9,9 +9,10 @@ Open response analysis project set up by state-owned start-up Agora.
   - **code** : dossier du code des pages
   - **dags** : dossier de code utilisé par les page notamment pour récupérer des données ou faire du traitement de données avant leur affichage
   -*.ipynb : Notebook contenant du code pouvant servir à l'exécution des pipelines de manière manuelle 
-
+  - **webapp** : dossier contenant le code de la webapp utilisé pour orchestrer les analyses de données
 - **Procfile** : fichier utile au déploiement sur Scalingo
 - **requirement.txt** : fichier contenant les dépendances des librairies pythons
+- *.env.template* : fichier template des variables d'environnement utilisés pour le projet
 
 
 ## Pré-requis
@@ -40,6 +41,11 @@ source new_env/bin/activate
 # Install the required dependencies that have been stored in a file for the occasion
 pip install -r install/requirements.txt
 ```
+
+### Variables d'environnements
+
+- TOPIC_THRESHOLD_FOR_SUBTOPIC: Valeur en pourcentage utilisés pour savoir à partir de quel représentation total des données par un topic est-ce qu'on calcul ses sous-topics. Exemple si TOPIC_THRESHOLD_FOR_SUBTOPIC=5 alors on calcul les sous-topics pour tous les topics représentant au moins 5% des données de réponses.
+
 
 ### Déploiement
 Utilisation de la plateforme Scalingo pour déployer cet outil de gestion de pipeline.

@@ -15,7 +15,7 @@ from datetime import timedelta
 import sys
 sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
 from dags.config import DOC_INFOS_FILEPATH, DOC_INFOS_WITH_SUB_FILEPATH, CLEANED_DATA_FILEPATH, TOPIC_THRESHOLD_FOR_SUBTOPIC
-
+from code.topic_modeling import get_custom_bertopic_model, get_lightweight_bertopic_model
 
 @dag(default_args={'owner': 'airflow'}, schedule=timedelta(days=30),
      start_date=pendulum.today('UTC').add(hours=-1))
@@ -24,20 +24,19 @@ def topic_modeling_pipeline_2():
 
     @task
     def topic_modeling_2():
-        from code.topic_modeling import get_custom_bertopic_model
         cleaned_data = pd.read_parquet(CLEANED_DATA_FILEPATH)
         fracking_merge = cleaned_data[["old_index", "fracking_count"]].copy()
-        X = cleaned_data["fracked_text"].head(10)
+        X = cleaned_data["fracked_text"]
         print("Begin Fit BerTopic Model")
         print(X.shape)
-        custom_bert, custom_topics = get_custom_bertopic_model(X)
+        custom_bert, custom_topics = get_lightweight_bertopic_model(X)
         print("Get document info from BerTopic")
         doc_infos = custom_bert.get_document_info(X)
         doc_infos = doc_infos.join(fracking_merge)
         doc_infos.to_parquet(DOC_INFOS_FILEPATH)
         return DOC_INFOS_FILEPATH
 
-    
+
     @task
     def subtopic_modeling_2(filepath: str):
         from code.topic_modeling import get_topic_distribution, get_sub_topics

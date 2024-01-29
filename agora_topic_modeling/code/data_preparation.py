@@ -1,7 +1,8 @@
+import os
 import re
 import pandas as pd
 import uuid
-
+from code.psql_utils import get_connection_from_url
 
 def fracking(df: pd.DataFrame, col: str, sep: str)-> pd.DataFrame:
     # lambda split that filter empty elements from list
@@ -76,3 +77,15 @@ def prep_sub_topics(preped_df: pd.DataFrame):
     sub_topics = preped_df.groupby("subtopic_id").agg(name=("sub_name", "first"), parent_id=("topic_id", "first")).reset_index()
     sub_topics = sub_topics.rename(columns={"subtopic_id": "topic_id"})
     return sub_topics
+
+
+# Main function for data preparation
+def read_and_prep_data_from_question_id(question_id: str)-> pd.DataFrame:
+    url = os.getenv("AGORA_PROD_URL")
+    print("URL")
+    print(url)
+    con = get_connection_from_url(url)
+    query = f"SELECT * FROM reponses_consultation WHERE question_id='{question_id}'"
+    df = pd.read_sql_query(query, con=con)
+    cleaned_data = prep_answer_df(df, "response_text")
+    return cleaned_data

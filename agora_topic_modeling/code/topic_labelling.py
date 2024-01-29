@@ -6,6 +6,7 @@ def get_docs_from_topic(doc_infos, topic):
     topic_doc_info = doc_infos[doc_infos["Topic"] == topic].copy()
     return topic_doc_info
 
+
 def get_tokenizer(t5=True):
     if t5:
         tokenizer = T5Tokenizer.from_pretrained("t5-base")
@@ -29,6 +30,7 @@ def get_headline_generator(t5=True):
     else:
         headline_generator = AutoModelForSeq2SeqLM.from_pretrained("csebuetnlp/mT5_multilingual_XLSum")
     return headline_generator
+
 
 def generate_topic_label(answers: list[str], summarizer, tokenizer, headline_generator, verbose=False) -> str:
     summary_list = []
