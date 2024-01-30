@@ -4,8 +4,11 @@ from bertopic import BERTopic
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.cluster import KMeans
 from sentence_transformers import SentenceTransformer
-
+import nltk
+nltk.download('stopwords')
 from nltk.corpus import stopwords
+
+
 from random import sample
 
 # Create instances of GPU-accelerated UMAP and HDBSCAN
@@ -34,7 +37,7 @@ def get_lightweight_bertopic_model(X: pd.Series)-> tuple[BERTopic, pd.DataFrame]
     return topic_model, topics
 
 
-def get_custom_bertopic_model(X: pd.Series, nr_topics: int=10, min_topic_size: int=100, sub_topics=False)-> tuple[BERTopic, pd.DataFrame]:
+def get_custom_bertopic_model(X: pd.Series, nr_topics: int=10, min_topic_size: int=50, sub_topics=False)-> tuple[BERTopic, pd.DataFrame]:
     # Remove stopwords
     print("Vectorized model")
     vectorizer_model = CountVectorizer(stop_words=stopwords.words("french"), strip_accents="ascii")
@@ -45,9 +48,8 @@ def get_custom_bertopic_model(X: pd.Series, nr_topics: int=10, min_topic_size: i
     #nr_topics = "auto"
     if not sub_topics:
         print("Topic model")
-        print(sub_topics)
         #topic_model = BERTopic(embedding_model=embedding_model, vectorizer_model=vectorizer_model, nr_topics=nr_topics, min_topic_size=min_topic_size, language="french", verbose=True)
-        topic_model = BERTopic(vectorizer_model=vectorizer_model, nr_topics=nr_topics, min_topic_size=min_topic_size, language="french", verbose=True)
+        topic_model = BERTopic(vectorizer_model=vectorizer_model, nr_topics=nr_topics, language="french", verbose=True)
     else:
         print("SubTopic model")
         n_docs = round(X.size * 0.02)
