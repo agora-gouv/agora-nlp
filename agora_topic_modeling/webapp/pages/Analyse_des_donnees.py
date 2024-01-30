@@ -61,9 +61,9 @@ def write():
         question_id = st.text_input("Id de la question à analyser:")
         if question_id != "":
             df = read_and_prep_data_from_question_id(question_id)
-        row = df_question[df_question["id"] == question_id]
-        question = row["title"].values[0]
-        consultation_name = row["consultation_title"].values[0]
+            row = df_question[df_question["id"] == question_id]
+            question = row["title"].values[0]
+            consultation_name = row["consultation_title"].values[0]
     elif choice == "Fichier":
         st.write("Upload un fichier qui contient une colone response_text")
         question = st.text_input("Titre de la question", value="Question_custom")
@@ -78,6 +78,7 @@ def write():
         
         st.write(f"Question: {question}")
         st.write(f"Consultation_title: {consultation_name}")
+        send_to_sql = st.checkbox("Envoyer les données sur la base Agora NLP")
         display = st.checkbox("Afficher les réponses :")
         if display:
             st.dataframe(df, use_container_width=True)
@@ -86,7 +87,7 @@ def write():
         if start_computing:
             doc_infos = compute_and_display_topics(df)
             doc_infos_w_sentiments = compute_and_display_sentiments(doc_infos)
-            send_to_sql = st.checkbox("Envoyer les données sur la base Agora NLP")
+            
             doc_infos_w_sentiments.to_csv("test_prep_and_insert.csv")
             if choice == "SQL":
                 if send_to_sql:
