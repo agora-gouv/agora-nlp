@@ -64,11 +64,12 @@ def prep_and_insert_to_agora_nlp(doc_infos: pd.DataFrame, question: str, consult
     consultation_df, question_df, topics_df = prep_topic(preped_df, question, consultation_name)
     responses_df = preped_df.drop(columns=["Name", "sub_name", "Representative_document"])
     if_exists="append"
-    url = os.get_env("AGORA_NLP_URL")
-    with get_connection_from_url(url) as con:
-        consultation_df.to_sql("consultations", con, if_exists=if_exists, index=False)
-        question_df.to_sql("questions", con, if_exists=if_exists, index=False)
-        topics_df.to_sql("topics", con, if_exists=if_exists, index=False)
-        responses_df.to_sql("responses", con, if_exists=if_exists, index=False)
-        representative_df.to_sql("representative_responses", con, if_exists=if_exists, index=False)
+    url = os.getenv("AGORA_NLP_URL_INSERT")
+    con = create_engine(url)
+    print(pd.read_sql_query("SELECT * FROM questions", con))
+    consultation_df.to_sql("consultations", con, if_exists=if_exists, index=False)
+    question_df.to_sql("questions", con, if_exists=if_exists, index=False)
+    topics_df.to_sql("topics", con, if_exists=if_exists, index=False)
+    responses_df.to_sql("responses", con, if_exists=if_exists, index=False)
+    representative_df.to_sql("representative_responses", con, if_exists=if_exists, index=False)
     return

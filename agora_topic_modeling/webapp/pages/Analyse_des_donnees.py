@@ -22,16 +22,35 @@ def insert_question_id():
     question_id = st.text_input("Id de la question à analyser:")
     return question_id    
 
+
+@st.cache_data
 def get_list_questions()-> None:
     con = get_connection_from_url(os.environ.get("AGORA_PROD_URL"))
     df_question = pd.read_sql_query("SELECT * FROM questions WHERE type='open'", con)
     df_consult = pd.read_sql_query("SELECT id AS consultation_id, title AS consultation_title FROM consultations", con)
     df_question = df_question.merge(df_consult, on="consultation_id")
     st.write("Liste des questions ouvertes et leur ID")
-    st.dataframe(df_question, use_container_width=True)
+    st.dataframe(df_question[["title", "id", "consultation_title"]], use_container_width=True)
     con.close()
     return df_question
 
+
+@st.cache_data
+def compute_and_display_topics(df: pd.DataFrame):
+    with st.spinner("Caclul des topics et sous topics pour la question: "):
+        doc_infos = get_topics_and_subtopics_from_df(df, "fracked_text")
+    st.write("### Données après la modélisation des topics")
+    st.dataframe(doc_infos)
+    return doc_infos
+
+
+@st.cache_data
+def compute_and_display_sentiments(doc_infos: pd.DataFrame):
+    with st.spinner("Calcul de l'analyse de sentiment"):
+        doc_infos_w_sentiments = apply_sentiment_analysis(doc_infos)
+    st.write("### Données après l'analyse de sentiment")
+    st.dataframe(doc_infos_w_sentiments)
+    return doc_infos_w_sentiments
 
 
 def write():
@@ -56,16 +75,10 @@ def write():
         # Topic Modeling
         start_computing = st.checkbox("Lancer les calculs")
         if start_computing:
-            with st.spinner("Caclul des topics et sous topics pour la question: "):
-
-                doc_infos = get_topics_and_subtopics_from_df(df, "fracked_text")
-            st.write("### Données après la modélisation des topics")
-            st.dataframe(doc_infos)
-            with st.spinner("Calcul de l'analyse de sentiment"):
-                doc_infos_w_sentiments = apply_sentiment_analysis(doc_infos)
-            st.write("### Données après l'analyse de sentiment")
-            st.dataframe(doc_infos_w_sentiments)
-            send_to_sql = st.button("Envoyer les données sur la base Agora NLP")
+            doc_infos = compute_and_display_topics(df)
+            doc_infos_w_sentiments = compute_and_display_sentiments(doc_infos)
+            send_to_sql = st.checkbox("Envoyer les données sur la base Agora NLP")
+            doc_infos_w_sentiments.to_csv("test_prep_and_insert.csv")
             if send_to_sql:
                 prep_and_insert_to_agora_nlp(doc_infos_w_sentiments, question, consultation_name)
                 return

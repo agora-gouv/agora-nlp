@@ -5,7 +5,6 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.cluster import KMeans
 from sentence_transformers import SentenceTransformer
 
-
 from nltk.corpus import stopwords
 from random import sample
 
@@ -35,22 +34,23 @@ def get_lightweight_bertopic_model(X: pd.Series)-> tuple[BERTopic, pd.DataFrame]
     return topic_model, topics
 
 
-def get_custom_bertopic_model(X: pd.Series)-> tuple[BERTopic, pd.DataFrame]:
+def get_custom_bertopic_model(X: pd.Series, nr_topics: int=10, min_topic_size: int=100, sub_topics=False)-> tuple[BERTopic, pd.DataFrame]:
     # Remove stopwords
     print("Vectorized model")
     vectorizer_model = CountVectorizer(stop_words=stopwords.words("french"), strip_accents="ascii")
-    embedding_model = SentenceTransformer("/Users/theo.santos/Documents/Missions/Agora/models")
+    #embedding_model = SentenceTransformer("/Users/theo.santos/Documents/Missions/Agora/models")
 
-    cluster_model = KMeans(n_clusters=5)
+    #cluster_model = KMeans(n_clusters=5)
     
-    nr_topics = "auto"
-    #nr_topics = 10
-    min_topic_size = 10
-    if True:
+    #nr_topics = "auto"
+    if not sub_topics:
         print("Topic model")
-        topic_model = BERTopic(hdbscan_model=cluster_model, embedding_model=embedding_model, vectorizer_model=vectorizer_model, nr_topics=nr_topics, min_topic_size=min_topic_size, language="french", verbose=True)
+        print(sub_topics)
+        #topic_model = BERTopic(embedding_model=embedding_model, vectorizer_model=vectorizer_model, nr_topics=nr_topics, min_topic_size=min_topic_size, language="french", verbose=True)
+        topic_model = BERTopic(vectorizer_model=vectorizer_model, nr_topics=nr_topics, min_topic_size=min_topic_size, language="french", verbose=True)
     else:
-        n_docs = round(X.size * 0.01)
+        print("SubTopic model")
+        n_docs = round(X.size * 0.02)
         topic_model = BERTopic(vectorizer_model=vectorizer_model, min_topic_size=n_docs, language="french")
     
     print("Fit Transform")
@@ -80,15 +80,15 @@ def get_sub_topics(doc_infos: pd.DataFrame, topic_range: int):
         print(f"Sub_topics for topic {topic}")
         topic_documents = get_docs_from_topic(doc_infos, topic)
         X = topic_documents["Document"]
-        custom_bert, custom_topics = get_custom_bertopic_model(X)
+        custom_bert, custom_topics = get_custom_bertopic_model(X, sub_topics=True)
         topic_infos = custom_bert.get_document_info(X)
         topic_infos["id"] = topic_documents.index
         print(get_topic_distribution(topic_infos))
-        topic_infos = topic_infos.rename(columns={"Topic": "sub_topic", "Name": "sub_name"})
+        topic_infos = topic_infos.rename(columns={"Topic": "sub_topic", "Name": "sub_name", "Probability": "sub_probability"})
         if to_merge is None:
-            to_merge = topic_infos[["id", "sub_topic", "sub_name"]]
+            to_merge = topic_infos[["id", "sub_topic", "sub_name", "sub_probability"]]
         else:
-            to_merge = pd.concat([to_merge, topic_infos[["id", "sub_topic", "sub_name"]]])
+            to_merge = pd.concat([to_merge, topic_infos[["id", "sub_topic", "sub_name", "sub_probability"]]])
     doc_infos["id"] = doc_infos.index
     doc_infos_w_subtopics = doc_infos.merge(to_merge, on="id", how="left")
     doc_infos_w_subtopics["sub_topic"] = doc_infos_w_subtopics["sub_topic"].fillna(-2)
@@ -102,7 +102,8 @@ def get_topics_and_subtopics_from_df(df: pd.DataFrame, col_to_analyse: str):
     doc_infos = custom_bert.get_document_info(X)
     doc_infos = doc_infos.join(fracking_merge)
     answers_per_topic = get_topic_distribution(doc_infos)
-    #sub_topic_range = answers_per_topic[answers_per_topic["percentage"] > float(os.getenv("TOPIC_THRESHOLD_FOR_SUBTOPIC"))].count()[0]
+    print(answers_per_topic)
+    sub_topic_range = answers_per_topic[answers_per_topic["percentage"] > float(os.getenv("TOPIC_THRESHOLD_FOR_SUBTOPIC"))].count()[0]
 
-    doc_infos_w_subtopics = get_sub_topics(doc_infos, 2)
+    doc_infos_w_subtopics = get_sub_topics(doc_infos, sub_topic_range)
     return doc_infos_w_subtopics
