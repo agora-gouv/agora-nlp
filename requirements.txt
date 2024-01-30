@@ -63,7 +63,8 @@ threadpoolctl==3.2.0
 tokenizers==0.15.1
 toml==0.10.2
 toolz==0.12.1
-torch==2.1.2
+-f https://download.pytorch.org/whl/torch_stable.html
+torch==2.1.2+cpu
 torchvision==0.16.2
 tornado==6.4
 tqdm==4.66.1
