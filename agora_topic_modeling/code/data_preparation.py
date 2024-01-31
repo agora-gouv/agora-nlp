@@ -26,7 +26,7 @@ def compute_response_size(df: pd.DataFrame, response_col: str)-> pd.DataFrame:
 
 # Remove, useless answers
 def prep_answer_df(df: pd.DataFrame, response_col: str):
-    cleaned_df = df.copy()
+    cleaned_df = df.dropna().copy()
     NUMBERED_LIST_HANDLER = lambda x: re.sub(r'([0-9]+\. )', ' ', x)
     SPECIAL_CHAR_HANDLER = lambda x: re.sub(r'[()/\\]', ' ', x)
     WHITESPACE_HANDLER = lambda x: re.sub('\s+', ' ', re.sub('\n+', ' ', x.strip()))
