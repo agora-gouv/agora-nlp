@@ -4,7 +4,7 @@ load_dotenv()
 import os 
 import pandas as pd
 import sys
-sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))))
 
 from code.data_preparation import read_and_prep_data_from_question_id, prep_answer_df
 from code.topic_modeling import get_topics_and_subtopics_from_df
