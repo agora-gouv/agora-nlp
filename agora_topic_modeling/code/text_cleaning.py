@@ -3,12 +3,12 @@ import string
 import spacy
 import unicodedata
 import pandas as pd
-import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from unidecode import unidecode
 from spacymoji import Emoji
+import nltk
 nltk.download("stopwords")
 nltk.download("wordnet")
 
