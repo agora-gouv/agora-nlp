@@ -67,7 +67,7 @@ toolz==0.12.1
 torch==2.1.2+cpu
 torchvision==0.16.2
 tornado==6.4
-tqdm==4.66.1
+tqdm==4.66.3
 transformers==4.37.1
 typing_extensions==4.9.0
 tzdata==2023.4
