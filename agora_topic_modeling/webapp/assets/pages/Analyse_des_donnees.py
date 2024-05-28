@@ -93,9 +93,10 @@ def write():
             if choice == "SQL":
                 if send_to_sql:
                     prep_and_insert_to_agora_nlp(doc_infos_w_sentiments, question, consultation_name)
+                    st.info("Les données ont été envoyées dans la base de données Agora !")
                     return
             elif choice == "Fichier":
-                csv = convert_df(df)
+                csv = convert_df(doc_infos_w_sentiments)
                 st.download_button(
                 "Cliquer pour Télécharger",
                 csv,
