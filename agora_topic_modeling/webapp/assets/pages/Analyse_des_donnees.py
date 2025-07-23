@@ -26,11 +26,11 @@ def insert_question_id():
 @st.cache_data
 def get_list_questions()-> None:
     con = get_connection_from_url(os.environ.get("AGORA_PROD_URL"))
-    df_question = pd.read_sql_query("SELECT * FROM questions WHERE type='open'", con)
-    df_consult = pd.read_sql_query("SELECT id AS consultation_id, title AS consultation_title FROM consultations", con)
-    df_question = df_question.merge(df_consult, on="consultation_id")
+    df_question = pd.read_sql_query("SELECT consultation_id, question_id FROM reponses_consultation WHERE response_text IS NOT NULL AND response_text != '' GROUP BY question_id, consultation_id ORDER BY consultation_id;", con)
+#     df_consult = pd.read_sql_query("SELECT id AS consultation_id, title AS consultation_title FROM consultations", con)
+#     df_question = df_question.merge(df_consult, on="consultation_id")
     st.write("Liste des questions ouvertes et leur ID")
-    st.dataframe(df_question[["title", "id", "consultation_title"]], use_container_width=True)
+    st.dataframe(df_question[["consultation_id", "question_id"]], use_container_width=True)
     con.close()
     return df_question
 

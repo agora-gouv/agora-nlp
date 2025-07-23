@@ -43,7 +43,7 @@ pip install -r install/requirements.txt
 
 ### Variables d'environnements
 
-- **`TOPIC_THRESHOLD_FOR_SUBTOPIC`**: Valeur en pourcentage utilisés pour savoir à partir de quel représentation total des données par un topic est-ce qu'on calcul ses sous-topics. Exemple si `TOPIC_THRESHOLD_FOR_SUBTOPIC=5` alors on calcul les sous-topics pour tous les topics représentant au moins 5% des données de réponses.
+- **`TOPIC_THRESHOLD_FOR_SUBTOPIC`**: Valeur en pourcentage utilisés pour savoir à partir de quelle représentation total des données pour un topic est-ce qu'on calcul ses sous-topics. Exemple si `TOPIC_THRESHOLD_FOR_SUBTOPIC=5` alors on calcul les sous-topics pour tous les topics représentant au moins 5% des données de réponses.
 - **`AGORA_NLP_URL_INSERT`**: URL *sqlalchemy* pour insérer les données analysées dans la base de données *Agora-nlp*
 - **`AGORA_PROD_URL`**: URL *sqlalchemy* pour lire les données depuis la base de données *Agora-prod*
 

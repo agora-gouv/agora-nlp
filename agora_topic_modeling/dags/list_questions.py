@@ -21,7 +21,7 @@ def list_questions():
         url = os.getenv("AGORA_PROD_URL")
         print(url)
         con = get_connection_from_url(url)
-        df = pd.read_sql_query("SELECT id, title FROM questions WHERE type='open'", con=con)
+        df = pd.read_sql_query("SELECT question_id FROM reponses_consultation GROUP BY question_id ORDER BY question_id", con=con)
         print(df)
         con.close()
         return
