@@ -1,7 +1,6 @@
 ## Agora-NLP
 
-Open response analysis project set up by state-owned start-up Agora.
-
+Outil d'analyse de réponses ouvertes pour le projet Agora.
 
 ## Structure du répertoire
 
@@ -27,42 +26,36 @@ L'installation est un processus en 3 étapes :
 - Activer **l'environnement virtuel** *python*
 - Installer les dépendances requises
 
-```bash 
-# Create a new environment named as you would like 
-python3 -m venv new_env
+```sh
+# Create a new environment named as you would like
+python3 -m venv "venv"
 ```
 
-```bash 
+```sh
 # Load the virtual environment you created previously
-source new_env/bin/activate
+source venv/bin/activate
 ```
 
-```bash
+```sh
 # Install the required dependencies that have been stored in a file for the occasion
 pip install -r install/requirements.txt
 ```
 
 ### Variables d'environnements
 
-- **TOPIC_THRESHOLD_FOR_SUBTOPIC**: Valeur en pourcentage utilisés pour savoir à partir de quel représentation total des données par un topic est-ce qu'on calcul ses sous-topics. Exemple si TOPIC_THRESHOLD_FOR_SUBTOPIC=5 alors on calcul les sous-topics pour tous les topics représentant au moins 5% des données de réponses.
-- **AGORA_NLP_URL_INSERT**: URL sqlalchemy pour insérer les données analysés dans la *base de données* Agora-nlp
-- **AGORA_PROD_URL**: URL sqlalchemy pour lire les données depuis la *base de données* Agora-prod
+- **`TOPIC_THRESHOLD_FOR_SUBTOPIC`**: Valeur en pourcentage utilisés pour savoir à partir de quel représentation total des données par un topic est-ce qu'on calcul ses sous-topics. Exemple si `TOPIC_THRESHOLD_FOR_SUBTOPIC=5` alors on calcul les sous-topics pour tous les topics représentant au moins 5% des données de réponses.
+- **`AGORA_NLP_URL_INSERT`**: URL *sqlalchemy* pour insérer les données analysées dans la base de données *Agora-nlp*
+- **`AGORA_PROD_URL`**: URL *sqlalchemy* pour lire les données depuis la base de données *Agora-prod*
 
 
 ### Déploiement
 Utilisation de la plateforme Scalingo pour déployer cet outil de gestion de pipeline.
 Déploiement manuel de l'application sur l'interface de Scalingo en sélectionnant la branche à déployer.
 Scalingo utilise un *Procfile* situé à la racine du projet pour savoir quoi lancer au démarrage de l'application déployée.
-Contenu du *Procfile*:
-```
-web: bash start_webapp.sh
-```
-le script start_webapp.sh contient le code suivant:
-```
-python3 -m streamlit run agora_topic_modeling/webapp/webapp.py --server.port=$PORT --server.address=0.0.0.0
-```
 
 ### Usage
-TODO
 
-> Author: Theo Santos
+```sh
+python3 -m streamlit run agora_topic_modeling/webapp/webapp.py
+```
+
